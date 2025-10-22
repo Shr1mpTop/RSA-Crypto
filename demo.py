@@ -6,27 +6,23 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from src.key_generation import generate_keypair
 from src.rsa_core import encrypt, decrypt
 
-
 def print_header(title):
     """Print a formatted header."""
     print("\n" + "="*70)
     print(f"  {title}")
     print("="*70)
 
-
 def demonstrate_secure_rsa():
     """Demonstrate secure RSA usage."""
     print_header("DEMONSTRATION: Secure RSA Implementation")
     
     print("\n1. Generating secure 2048-bit RSA key pair...")
-    print("-" * 70)
     public_key, private_key = generate_keypair(2048)
     print(f"✓ Keys generated successfully")
     print(f"  Modulus bit length: {public_key.bit_length} bits")
     print(f"  Public exponent: e = {public_key.exponent}")
     
     print("\n2. Encrypting a message...")
-    print("-" * 70)
     message = b"This is a secure message encrypted with 2048-bit RSA!"
     print(f"Original message: {message}")
     
@@ -34,7 +30,6 @@ def demonstrate_secure_rsa():
     print(f"Ciphertext length: {len(str(ciphertext))} digits")
     
     print("\n3. Decrypting the message...")
-    print("-" * 70)
     decrypted = decrypt(ciphertext, private_key)
     print(f"Decrypted message: {decrypted}")
     print(f"Decryption successful: {message == decrypted}")
@@ -44,7 +39,7 @@ def demonstrate_attacks():
     """Run all attack demonstrations."""
     print_header("ATTACK DEMONSTRATIONS")
     
-    print("\n⚠️  WARNING: The following demonstrates attacks on WEAK RSA keys")
+    print("\nWARNING: The following demonstrates attacks on WEAK RSA keys")
     print("    These are for EDUCATIONAL purposes only!")
     print("    NEVER use weak parameters in production!")
     
@@ -105,7 +100,6 @@ def show_menu():
     print("  3. Demonstrate Specific Attack")
     print("  4. Run Basic Examples")
     print("  0. Exit")
-    print("-" * 70)
 
 
 def show_attack_menu():
@@ -117,7 +111,6 @@ def show_attack_menu():
     print("  4. Common Factor Attack")
     print("  5. Partial Key Exposure Attack")
     print("  0. Back to main menu")
-    print("-" * 70)
 
 
 def run_specific_attack(choice):

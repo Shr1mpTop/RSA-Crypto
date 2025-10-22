@@ -32,10 +32,8 @@ RSA-Crypto/
 │   ├── key_generation.py    # Key generation
 │   ├── attacks/
 │   │   ├── small_prime.py   # Small prime attack
-│   │   ├── wiener.py        # Wiener's attack
 │   │   ├── common_modulus.py # Common modulus attack
 │   │   ├── low_exponent.py  # Low exponent attack
-│   │   ├── fermat.py        # Fermat's factorization
 │   │   └── common_factor.py # Common factor attack
 │   └── utils.py             # Utility functions
 ├── examples/
@@ -57,29 +55,23 @@ RSA-Crypto/
 5. **Decryption**: m = c^d mod n
 
 ### Attack Methods Explained
-
 #### 1. Small Prime Factorization Attack
-
 - **Principle**: When p or q is small, n can be quickly factorized using trial division
 - **Defense**: Use sufficiently large primes (at least 512 bits)
 
 #### 2. Wiener's Attack
-
 - **Principle**: When d < N^(1/4), d can be recovered using continued fractions algorithm
 - **Defense**: Ensure d is sufficiently large
 
 #### 3. Common Modulus Attack
-
 - **Principle**: Same message encrypted with same n but different e can recover plaintext
 - **Defense**: Use different n for each encryption
 
 #### 4. Low Encryption Exponent Attack
-
 - **Principle**: When e is small and same message is sent to multiple recipients, Chinese Remainder Theorem can recover plaintext
 - **Defense**: Use safe e values (such as 65537) and add random padding
 
-## 📊 Performance Benchmarks
-
+## Performance Benchmarks
 | Key Size | Key Generation | Encryption | Decryption |
 |----------|---------------|------------|------------|
 | 512-bit  | ~0.1s        | <0.01s     | ~0.01s     |
@@ -87,8 +79,7 @@ RSA-Crypto/
 | 2048-bit | ~2s          | <0.01s     | ~0.2s      |
 | 4096-bit | ~15s         | <0.01s     | ~1.5s      |
 
-## 📚 References
-
+## References
 - [RSA Algorithm Principles](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
 - [Twenty Years of Attacks on the RSA Cryptosystem](https://crypto.stanford.edu/~dabo/pubs/papers/RSA-survey.pdf)
 - [Applied Cryptography - Bruce Schneier](https://www.schneier.com/books/applied-cryptography/)
