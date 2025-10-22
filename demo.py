@@ -76,22 +76,16 @@ def demonstrate_attacks():
             "function": "demonstrate_common_modulus_attack"
         },
         {
-            "name": "Low Exponent Attack (Håstad)",
-            "description": "Attacking RSA with small public exponent e",
-            "module": "src.attacks.low_exponent",
-            "function": "demonstrate_low_exponent_attack"
-        },
-        {
-            "name": "Fermat's Factorization Attack",
-            "description": "Attacking RSA with close prime factors",
-            "module": "src.attacks.fermat",
-            "function": "demonstrate_fermat_attack"
-        },
-        {
             "name": "Common Factor Attack",
             "description": "Attacking multiple RSA keys sharing factors",
             "module": "src.attacks.common_factor",
             "function": "demonstrate_common_factor_attack"
+        },
+        {
+            "name": "Partial Key Exposure Attack",
+            "description": "Attacking RSA when partial key bits are leaked",
+            "module": "src.attacks.partial_key_exposure",
+            "function": "demonstrate_partial_key_exposure_attack"
         }
     ]
     
@@ -113,9 +107,6 @@ def demonstrate_attacks():
 
 def show_menu():
     """Display the main menu."""
-    print("\n" + "="*70)
-    print("  RSA ENCRYPTION AND ATTACK DEMONSTRATION")
-    print("="*70)
     print("\nChoose an option:")
     print("  1. Demonstrate Secure RSA (2048-bit)")
     print("  2. Demonstrate All Attacks")
@@ -131,9 +122,8 @@ def show_attack_menu():
     print("  1. Small Prime Factorization Attack")
     print("  2. Wiener's Attack (Small d)")
     print("  3. Common Modulus Attack")
-    print("  4. Low Exponent Attack (Håstad)")
-    print("  5. Fermat's Factorization Attack")
-    print("  6. Common Factor Attack")
+    print("  4. Common Factor Attack")
+    print("  5. Partial Key Exposure Attack")
     print("  0. Back to main menu")
     print("-" * 70)
 
@@ -144,9 +134,8 @@ def run_specific_attack(choice):
         1: ("src.attacks.small_prime", "demonstrate_small_prime_attack", "Small Prime Attack"),
         2: ("src.attacks.wiener", "demonstrate_wiener_attack", "Wiener's Attack"),
         3: ("src.attacks.common_modulus", "demonstrate_common_modulus_attack", "Common Modulus Attack"),
-        4: ("src.attacks.low_exponent", "demonstrate_low_exponent_attack", "Low Exponent Attack"),
-        5: ("src.attacks.fermat", "demonstrate_fermat_attack", "Fermat's Attack"),
-        6: ("src.attacks.common_factor", "demonstrate_common_factor_attack", "Common Factor Attack"),
+        4: ("src.attacks.common_factor", "demonstrate_common_factor_attack", "Common Factor Attack"),
+        5: ("src.attacks.partial_key_exposure", "demonstrate_partial_key_exposure_attack", "Partial Key Exposure Attack"),
     }
     
     if choice in attacks:

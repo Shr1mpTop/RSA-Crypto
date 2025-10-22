@@ -38,9 +38,6 @@ def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, n: int) -> int:
     Raises:
         ValueError: If e1 and e2 are not coprime
     """
-    print(f"\n{'='*60}")
-    print("COMMON MODULUS ATTACK")
-    print(f"{'='*60}")
     print(f"Common modulus n = {n}")
     print(f"First encryption: c1 = m^{e1} mod n")
     print(f"Second encryption: c2 = m^{e2} mod n")
@@ -79,7 +76,6 @@ def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, n: int) -> int:
     m = (pow(c1, s, n) * pow(c2, t, n)) % n
     
     print(f"\n✓ Message recovered: m = {m}")
-    print(f"{'='*60}")
     
     return m
 
@@ -92,29 +88,35 @@ def demonstrate_common_modulus_attack():
     from ..rsa_core import encrypt, decrypt
     from ..utils import bytes_to_int, int_to_bytes
     
-    print("\n" + "="*70)
-    print("DEMONSTRATION: Common Modulus Attack")
-    print("="*70)
-    
     # Setup: Two users share the same modulus (BAD PRACTICE!)
     print("\nStep 1: Generate two key pairs with SAME modulus (vulnerable!)")
     print("-" * 70)
     
-    # Generate first keypair
-    pub1, priv1 = generate_keypair(1024)
-    n = pub1.n
-    e1 = pub1.exponent
+    # Manually generate primes to have access to p and q
+    from ..key_generation import generate_prime
+    from ..utils import mod_inverse
     
-    # Generate second keypair with same n but different e
-    # (In practice, this shouldn't happen, but it's a configuration error)
+    print("Generating primes...")
+    p = generate_prime(512)
+    q = generate_prime(512)
+    while p == q:
+        q = generate_prime(512)
+    
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    
+    # First user with e1 = 65537
+    e1 = 65537
+    d1 = mod_inverse(e1, phi)
+    pub1 = RSAKey(n, e1, "public")
+    priv1 = RSAKey(n, d1, "private")
+    
+    # Second user with different e2 (sharing same n - VULNERABILITY!)
     e2 = 3
-    while gcd(e2, (priv1.p - 1) * (priv1.q - 1)) != 1:
+    while gcd(e2, phi) != 1:
         e2 += 2
     
-    from ..utils import mod_inverse
-    phi = (priv1.p - 1) * (priv1.q - 1)
     d2 = mod_inverse(e2, phi)
-    
     pub2 = RSAKey(n, e2, "public")
     priv2 = RSAKey(n, d2, "private")
     
@@ -150,7 +152,6 @@ def demonstrate_common_modulus_attack():
     
     print("\n" + "="*70)
     print("✓ Common modulus attack successful!")
-    print("LESSON: Never reuse the same modulus for different key pairs!")
     print("="*70)
 
 

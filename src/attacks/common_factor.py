@@ -28,9 +28,6 @@ def common_factor_attack(public_keys: list) -> dict:
     Raises:
         ValueError: If no common factors found
     """
-    print(f"\n{'='*60}")
-    print("COMMON FACTOR ATTACK")
-    print(f"{'='*60}")
     print(f"Analyzing {len(public_keys)} RSA public keys...")
     print(f"Checking for shared prime factors...")
     
@@ -87,11 +84,10 @@ def common_factor_attack(public_keys: list) -> dict:
     if not factored_keys:
         print(f"\n✗ Attack failed: No common factors found")
         print(f"  All moduli appear to use distinct prime factors")
-        print(f"{'='*60}")
         raise ValueError("No common factors found among the provided keys")
     
     print(f"\n✓ Successfully compromised {len(factored_keys)} out of {num_keys} keys!")
-    print(f"{'='*60}")
+
     
     return factored_keys
 
@@ -103,10 +99,6 @@ def demonstrate_common_factor_attack():
     from ..key_generation import generate_prime
     from ..utils import mod_inverse
     from ..rsa_core import encrypt, decrypt
-    
-    print("\n" + "="*70)
-    print("DEMONSTRATION: Common Factor Attack")
-    print("="*70)
     
     # Setup: Generate multiple keys with shared prime (VULNERABILITY!)
     print("\nStep 1: Generate RSA keys with shared prime factor (vulnerable!)")
@@ -178,7 +170,6 @@ def demonstrate_common_factor_attack():
     
     print("\n" + "="*70)
     print("✓ Common factor attack successful!")
-    print("LESSON: Each RSA key must use completely unique prime factors!")
     print("="*70)
 
 

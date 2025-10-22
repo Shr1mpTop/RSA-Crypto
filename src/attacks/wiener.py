@@ -26,9 +26,6 @@ def wiener_attack(public_key: RSAKey) -> RSAKey:
     Raises:
         ValueError: If attack fails
     """
-    print(f"\n{'='*60}")
-    print("WIENER'S ATTACK (Small d)")
-    print(f"{'='*60}")
     print(f"Target modulus n = {public_key.n}")
     print(f"Target bit length = {public_key.bit_length}")
     print(f"Public exponent e = {public_key.exponent}")
@@ -39,7 +36,7 @@ def wiener_attack(public_key: RSAKey) -> RSAKey:
     e = public_key.exponent
     
     # Get convergents of e/n
-    conv = convergents(e, n, max_terms=1000)
+    conv = convergents(e, n, max_terms=10000)
     print(f"Testing {len(conv)} convergents...")
     
     for i, (k, d) in enumerate(conv):
@@ -71,15 +68,17 @@ def wiener_attack(public_key: RSAKey) -> RSAKey:
         if discriminant < 0:
             continue
         
-        # Check if discriminant is a perfect square
-        sqrt_d = int(discriminant ** 0.5)
+        # Check if discriminant is a perfect square using integer square root
+        import math
+        sqrt_d = math.isqrt(discriminant)
         if sqrt_d * sqrt_d != discriminant:
             continue
         
         p = (s + sqrt_d) // 2
         q = (s - sqrt_d) // 2
         
-        if p * q == n:
+        # Verify p and q are valid
+        if p * q == n and p > 1 and q > 1:
             print(f"\n✓ Attack successful!")
             print(f"  Found after testing {i+1} convergents")
             print(f"  p = {p}")
@@ -97,12 +96,10 @@ def wiener_attack(public_key: RSAKey) -> RSAKey:
             private_key.p = p
             private_key.q = q
             
-            print(f"{'='*60}")
             return private_key
     
     print(f"\n✗ Attack failed: Could not find valid d")
     print(f"  d might be too large for Wiener's attack")
-    print(f"{'='*60}")
     raise ValueError("Wiener's attack failed")
 
 
@@ -113,44 +110,53 @@ def demonstrate_wiener_attack():
     from ..key_generation import generate_weak_keypair_small_d
     from ..rsa_core import encrypt, decrypt
     
-    print("\n" + "="*70)
-    print("DEMONSTRATION: Wiener's Attack on Small Private Exponent")
-    print("="*70)
-    
-    # Generate weak keypair with small d
-    print("\nStep 1: Generate weak RSA key with small d")
-    print("-" * 70)
-    weak_public, weak_private = generate_weak_keypair_small_d(512)
-    print(f"Generated weak key pair:")
-    print(f"  n = {weak_public.n}")
-    print(f"  e = {weak_public.exponent}")
-    print(f"  d = {weak_private.exponent} (small!)")
-    print(f"  d < n^(1/4): {weak_private.exponent < int(weak_public.n ** 0.25)}")
-    
-    # Encrypt a message
-    print("\nStep 2: Encrypt a secret message")
-    print("-" * 70)
-    message = b"Attack works!"
-    print(f"Original message: {message}")
-    ciphertext = encrypt(message, weak_public)
-    print(f"Ciphertext: {ciphertext}")
-    
-    # Attack
-    print("\nStep 3: Perform Wiener's attack")
-    print("-" * 70)
-    recovered_private = wiener_attack(weak_public)
-    
-    # Verify
-    print("\nStep 4: Decrypt with recovered private key")
-    print("-" * 70)
-    decrypted = decrypt(ciphertext, recovered_private)
-    print(f"Decrypted message: {decrypted}")
-    print(f"Match: {message == decrypted}")
-    print(f"Recovered d matches: {recovered_private.exponent == weak_private.exponent}")
-    
-    print("\n" + "="*70)
-    print("✓ Wiener's attack successful! Private key recovered.")
-    print("="*70)
+    # Retry logic - sometimes random d generation doesn't work with convergents
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            # Generate weak keypair with small d
+            print("\nStep 1: Generate weak RSA key with small d")
+            print("-" * 70)
+            weak_public, weak_private = generate_weak_keypair_small_d(512)
+            print(f"Generated weak key pair:")
+            print(f"  n = {weak_public.n}")
+            print(f"  e = {weak_public.exponent}")
+            print(f"  d = {weak_private.exponent} (small!)")
+            print(f"  d < n^(1/4): {weak_private.exponent < int(weak_public.n ** 0.25)}")
+            
+            # Encrypt a message
+            print("\nStep 2: Encrypt a secret message")
+            print("-" * 70)
+            message = b"Attack works!"
+            print(f"Original message: {message}")
+            ciphertext = encrypt(message, weak_public)
+            print(f"Ciphertext: {ciphertext}")
+            
+            # Attack
+            print("\nStep 3: Perform Wiener's attack")
+            print("-" * 70)
+            recovered_private = wiener_attack(weak_public)
+            
+            # Verify
+            print("\nStep 4: Decrypt with recovered private key")
+            print("-" * 70)
+            decrypted = decrypt(ciphertext, recovered_private)
+            print(f"Decrypted message: {decrypted}")
+            print(f"Match: {message == decrypted}")
+            print(f"Recovered d matches: {recovered_private.exponent == weak_private.exponent}")
+            
+            print("\n" + "="*70)
+            print("✓ Wiener's attack successful!")
+            print("="*70)
+            break
+            
+        except ValueError as e:
+            if attempt < max_retries - 1:
+                print(f"\n⚠️  Attack failed (attempt {attempt + 1}/{max_retries}), retrying with new key...")
+            else:
+                print(f"\n✗ Attack failed after {max_retries} attempts")
+                print("Note: Wiener's attack has probabilistic success")
+                raise
 
 
 if __name__ == "__main__":

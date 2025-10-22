@@ -9,7 +9,7 @@ from ..rsa_core import RSAKey
 from ..utils import gcd, mod_inverse, factor_trial_division
 
 
-def small_prime_attack(public_key: RSAKey, max_prime: int = 1000000) -> RSAKey:
+def small_prime_attack(public_key: RSAKey, max_prime: int = 1000000) -> RSAKey: 
     """
     Attempt to factor the modulus using trial division with small primes.
     
@@ -26,9 +26,6 @@ def small_prime_attack(public_key: RSAKey, max_prime: int = 1000000) -> RSAKey:
     Raises:
         ValueError: If attack fails
     """
-    print(f"\n{'='*60}")
-    print("SMALL PRIME FACTORIZATION ATTACK")
-    print(f"{'='*60}")
     print(f"Target modulus n = {public_key.n}")
     print(f"Target modulus bit length = {public_key.bit_length}")
     print(f"Public exponent e = {public_key.exponent}")
@@ -58,12 +55,10 @@ def small_prime_attack(public_key: RSAKey, max_prime: int = 1000000) -> RSAKey:
         private_key.q = q
         
         print(f"\n✓ Recovered private exponent d = {d}")
-        print(f"{'='*60}")
         
         return private_key
     else:
         print(f"\n✗ Attack failed: Could not factor n with small primes")
-        print(f"{'='*60}")
         raise ValueError("Small prime attack failed")
 
 
@@ -73,10 +68,6 @@ def demonstrate_small_prime_attack():
     """
     from ..key_generation import generate_weak_keypair_small_primes
     from ..rsa_core import encrypt, decrypt
-    
-    print("\n" + "="*70)
-    print("DEMONSTRATION: Small Prime Factorization Attack")
-    print("="*70)
     
     # Generate weak keypair with small primes
     print("\nStep 1: Generate weak RSA key with small primes")
@@ -91,7 +82,7 @@ def demonstrate_small_prime_attack():
     # Encrypt a message
     print("\nStep 2: Encrypt a secret message")
     print("-" * 70)
-    message = b"Secret message!"
+    message = b"Hi!"
     print(f"Original message: {message}")
     ciphertext = encrypt(message, weak_public)
     print(f"Ciphertext: {ciphertext}")
@@ -99,7 +90,8 @@ def demonstrate_small_prime_attack():
     # Attack
     print("\nStep 3: Perform small prime attack")
     print("-" * 70)
-    recovered_private = small_prime_attack(weak_public)
+    # Use a higher limit to factor 24-bit primes (2^25 ≈ 33 million)
+    recovered_private = small_prime_attack(weak_public, max_prime=2**25)
     
     # Decrypt with recovered key
     print("\nStep 4: Decrypt with recovered private key")
@@ -109,7 +101,7 @@ def demonstrate_small_prime_attack():
     print(f"Match: {message == decrypted}")
     
     print("\n" + "="*70)
-    print("✓ Attack successful! Message recovered.")
+    print("✓ Small prime factorization attack successful!")
     print("="*70)
 
 

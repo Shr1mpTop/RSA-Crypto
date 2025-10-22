@@ -162,8 +162,13 @@ def decrypt_with_padding(ciphertext: int, private_key: RSAKey) -> bytes:
     Returns:
         The decrypted message without padding
     """
-    # Decrypt
-    padded = decrypt(ciphertext, private_key)
+    # Decrypt with fixed length to preserve leading zeros
+    m = pow(ciphertext, private_key.exponent, private_key.n)
+    
+    # Convert to bytes with fixed length (modulus size)
+    # This preserves leading zero bytes which are essential for PKCS#1 padding
+    k = (private_key.n.bit_length() + 7) // 8
+    padded = m.to_bytes(k, byteorder='big')
     
     # Check padding format
     if len(padded) < 11:

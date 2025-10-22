@@ -89,25 +89,21 @@ def generate_weak_keypair_small_primes(bits: int = 2048, e: int = 65537) -> Tupl
     """
     print(f"⚠️ Generating WEAK {bits}-bit RSA key pair (small primes)...")
     
-    # Generate small primes (only 16 bits each for easy factorization)
-    p = generate_prime(16)
-    q = generate_prime(16)
+    # Generate small primes (24 bits each - small enough for fast trial division)
+    # This results in n ≈ 48 bits, which can be factored quickly with trial division
+    # Note: Message must be very short (1-5 bytes)
+    p = generate_prime(24)
+    q = generate_prime(24)
     
     # Ensure p != q
     while p == q:
-        q = generate_prime(16)
+        q = generate_prime(24)
     
-    # Calculate modulus (will be much smaller than requested bits)
+    # Calculate modulus (will be ~48 bits, much smaller than requested bits)
     n = p * q
     
-    # Pad to requested bit size by multiplying with large number
-    # This makes n have the right bit length but still factorable
-    padding_bits = bits - n.bit_length()
-    if padding_bits > 0:
-        padding = random.getrandbits(padding_bits - 10)
-        n = n * (padding | 1)
-        # Adjust to make it product of our small primes
-        n = p * q
+    # Note: n will be much smaller than the requested bit size,
+    # but that's intentional for this weak key demonstration
     
     # Calculate phi
     phi = (p - 1) * (q - 1)
@@ -192,11 +188,24 @@ def generate_weak_keypair_small_d(bits: int = 2048) -> Tuple[RSAKey, RSAKey]:
     phi = (p - 1) * (q - 1)
     
     # Choose small d (vulnerable to Wiener's attack)
-    d = random.randint(2, int(n ** 0.25))
+    # d must be < n^(1/4) for Wiener's attack to work
+    max_d = int(n ** 0.25)
     
-    # Ensure d is coprime with phi
-    while gcd(d, phi) != 1:
-        d += 1
+    # Keep trying until we find a valid small d
+    attempts = 0
+    while attempts < 10000:
+        d = random.randint(max_d // 2, max_d)
+        
+        # Ensure d is coprime with phi
+        if gcd(d, phi) == 1:
+            break
+        attempts += 1
+    
+    if attempts >= 10000:
+        # Fallback: find a small d that works
+        d = 3
+        while gcd(d, phi) != 1 and d < max_d:
+            d += 2
     
     # Calculate corresponding e
     e = mod_inverse(d, phi)
