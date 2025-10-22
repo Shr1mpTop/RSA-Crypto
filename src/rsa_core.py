@@ -2,7 +2,6 @@ import random
 from typing import Tuple
 from .utils import mod_inverse, bytes_to_int, int_to_bytes
 
-
 class RSAKey:    
     def __init__(self, n: int, exponent: int, key_type: str = "public"):
         self.n = n

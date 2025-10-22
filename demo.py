@@ -1,16 +1,8 @@
-"""
-RSA Crypto - Main Demonstration Script
-
-This script provides an interactive demonstration of RSA encryption
-and various attack methods.
-"""
-
 import sys
 import os
 
 # Add src to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
 from src.key_generation import generate_keypair
 from src.rsa_core import encrypt, decrypt
 

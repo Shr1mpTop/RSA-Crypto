@@ -1,7 +1,6 @@
 import random
 from typing import Tuple
 
-
 def gcd(a: int, b: int) -> int:
     while b:
         a, b = b, a % b
@@ -164,10 +163,7 @@ def convergents(n: int, d: int, max_terms: int = 100) -> list:
     return convergents_list
 
 
-if __name__ == "__main__":
-    print("Testing Utility Functions...")
-    print("-" * 50)
-    
+if __name__ == "__main__":    
     # Test GCD
     print("\n1. Testing GCD:")
     print(f"   gcd(48, 18) = {gcd(48, 18)}")

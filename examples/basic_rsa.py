@@ -1,10 +1,3 @@
-"""
-Basic RSA Usage Examples
-
-This script demonstrates basic RSA operations including key generation,
-encryption, decryption, and digital signatures.
-"""
-
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -114,21 +107,13 @@ def example_key_sizes():
 
 
 def main():
-    """Run all examples."""
-    print("\n" + "#"*70)
-    print("# RSA BASIC USAGE EXAMPLES")
-    print("#"*70)
+    print("RSA BASIC USAGE EXAMPLES")
     
     try:
         example_basic_encryption()
         example_digital_signature()
         example_with_padding()
-        example_key_sizes()
-        
-        print("\n" + "="*70)
-        print("✓ All examples completed successfully!")
-        print("="*70)
-        
+        example_key_sizes()        
     except Exception as e:
         print(f"\n✗ Error: {e}")
         import traceback
