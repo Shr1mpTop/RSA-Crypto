@@ -9,9 +9,7 @@ from src.utils import gcd, mod_inverse
 
 def print_header(title):
     """Print a formatted header."""
-    print("\n" + "="*70)
     print(f"  {title}")
-    print("="*70)
 
 
 def get_user_input(prompt, input_type=str, validator=None):
@@ -65,11 +63,10 @@ def demonstrate_secure_rsa():
 
 def setup_keys_interactive():
     """Interactive RSA key setup with multiple options."""
-    print_header("Interactive RSA Key Setup")
-    print("Choose key generation method:")
-    print("  1. Auto-generate (Recommended)")
-    print("  2. Manual parameters (Advanced)")
-    print("  0. Back to main menu")
+    print_header("RSA")
+    print("  1. Auto-generate")
+    print("  2. Manual parameters")
+    print("  0. Main menu")
     
     choice = get_user_input("\nSelect option (1/2/0): ", str, lambda x: x in ['1', '2', '0'])
     if choice is None or choice == '0':
@@ -257,31 +254,87 @@ def demonstrate_signature_interactive(public_key, private_key):
         print(f"  s = {signature}")
         print(f"  Hex: {hex(signature)}")
         
-        # Verify signature
-        is_valid = verify(message, signature, public_key)
-        print(f"\nSignature Verification:")
-        print(f"  m' = s^e mod n")
-        if is_valid:
-            print(f" Signature valid! Message is authentic and from private key holder")
-        else:
-            print(f" Signature invalid!")
+        # Verify signature - show detailed process
+        print(f"\n{'='*70}")
+        print(f"Signature Verification Process:")
+        print(f"{'='*70}")
         
-        # Test tampered message
-        print(f"\nTesting Message Tampering:")
+        # Step 1: Original message info
+        print(f"\n[Step 1] Original Message:")
+        print(f"  Text: {message.decode('utf-8')}")
+        print(f"  Bytes: {message.hex()}")
+        message_int = int.from_bytes(message, 'big')
+        print(f"  Integer: m = {message_int}")
+        
+        # Step 2: Decrypt signature with public key
+        print(f"\n[Step 2] Decrypt Signature with Public Key:")
+        print(f"  m' = s^e mod n")
+        print(f"  m' = {signature}^{public_key.exponent} mod {public_key.n}")
+        
+        # Calculate m' manually to show the process
+        m_prime = pow(signature, public_key.exponent, public_key.n)
+        print(f"  m' = {m_prime}")
+        
+        # Convert m_prime back to bytes
+        m_prime_bytes_len = (m_prime.bit_length() + 7) // 8
+        m_prime_bytes = m_prime.to_bytes(m_prime_bytes_len, 'big')
+        print(f"\n[Step 3] Decoded Message from Signature:")
+        print(f"  Integer: m' = {m_prime}")
+        print(f"  Bytes: {m_prime_bytes.hex()}")
+        try:
+            m_prime_text = m_prime_bytes.decode('utf-8')
+            print(f"  Text: {m_prime_text}")
+        except:
+            print(f"  Text: [Unable to decode as UTF-8]")
+        
+        # Step 4: Compare
+        print(f"\n[Step 4] Verification:")
+        print(f"  Original m  = {message_int}")
+        print(f"  Decoded  m' = {m_prime}")
+        is_valid = verify(message, signature, public_key)
+        
+        if is_valid:
+            print(f"  Result: m == m' ✓")
+            print(f"  ✓ Signature valid! Message is authentic and from private key holder")
+        else:
+            print(f"  Result: m ≠ m' ✗")
+            print(f"  ✗ Signature invalid!")
+        
+        # Test tampered message - show detailed process
+        print(f"\n{'='*70}")
+        print(f"Testing Message Tampering:")
+        print(f"{'='*70}")
+        
         tampered_message = b"Tampered message"
+        print(f"\n[Attack] Attacker tampers the message:")
+        print(f"  New Text: {tampered_message.decode('utf-8')}")
+        print(f"  New Bytes: {tampered_message.hex()}")
+        tampered_int = int.from_bytes(tampered_message, 'big')
+        print(f"  New Integer: m₂ = {tampered_int}")
+        
+        print(f"\n[Verification] Using SAME signature to verify TAMPERED message:")
+        print(f"  Signature: s = {signature}")
+        print(f"  Decrypt: m' = s^e mod n = {m_prime}")
+        
+        print(f"\n[Comparison]:")
+        print(f"  Tampered message m₂ = {tampered_int}")
+        print(f"  Decoded from sig m' = {m_prime}")
+        print(f"  Original message m  = {message_int}")
+        
         is_valid_tampered = verify(tampered_message, signature, public_key)
-        print(f"  Verifying with tampered message: {'✗ Invalid' if not is_valid_tampered else '✓ Valid'}")
+        
+        if is_valid_tampered:
+            print(f"  Result: m₂ == m' ✓ [This should not happen!]")
+        else:
+            print(f"  Result: m₂ ≠ m' ✗")
+            print(f"  ✗ Verification failed! Tampering detected!")
         
     except ValueError as e:
         print(f"\n✗ Signing failed: {e}")
-        print("Hint: Message too long, use larger key or shorter message")
-
 
 def interactive_rsa_menu():
     """Interactive RSA operations menu."""
-    print_header("Interactive RSA Operations")
-    print("Tip: Type 'q' at any prompt to return to this menu")
-    
+    print_header("RSA Operations")    
     # Setup keys first
     result = setup_keys_interactive()
     if result is None:
