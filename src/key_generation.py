@@ -25,11 +25,11 @@ def generate_keypair(bits: int = 2048, e: int = 65537) -> Tuple[RSAKey, RSAKey]:
     if gcd(e, phi) != 1:
         raise ValueError(f"e={e} is not coprime with phi(n)")
     d = mod_inverse(e, phi)    
-    # Create key objects
+    # Create key objects with p and q for CRT optimization
     public_key = RSAKey(n, e, "public")
-    private_key = RSAKey(n, d, "private")
+    private_key = RSAKey(n, d, "private", p=p, q=q)
     
-    print(f"Key generation complete")
+    print(f"Key generation complete (CRT-enabled)")
     return public_key, private_key
 
 def generate_weak_keypair_small_primes(bits: int = 2048, e: int = 65537) -> Tuple[RSAKey, RSAKey]:
@@ -43,10 +43,7 @@ def generate_weak_keypair_small_primes(bits: int = 2048, e: int = 65537) -> Tupl
     d = mod_inverse(e, phi)
     
     public_key = RSAKey(n, e, "public")
-    private_key = RSAKey(n, d, "private")
-
-    private_key.p = p
-    private_key.q = q
+    private_key = RSAKey(n, d, "private", p=p, q=q)
     
     print(f"p={p}\nq={q}")
     return public_key, private_key
@@ -85,11 +82,8 @@ def generate_weak_keypair_close_primes(bits: int = 2048, e: int = 65537) -> Tupl
     phi = (p - 1) * (q - 1)
     d = mod_inverse(e, phi)    
     public_key = RSAKey(n, e, "public")
-    private_key = RSAKey(n, d, "private")
+    private_key = RSAKey(n, d, "private", p=p, q=q)
     
-    # Store p and q for attack demonstration
-    private_key.p = p
-    private_key.q = q   
     print(f"p={p}\nq={q}\n|p-q|={abs(p-q)}")
     return public_key, private_key
 
@@ -118,11 +112,7 @@ def generate_weak_keypair_small_d(bits: int = 2048) -> Tuple[RSAKey, RSAKey]:
     e = mod_inverse(d, phi)
     
     public_key = RSAKey(n, e, "public")
-    private_key = RSAKey(n, d, "private")
-    
-    # Store p and q for verification
-    private_key.p = p
-    private_key.q = q
+    private_key = RSAKey(n, d, "private", p=p, q=q)
     
     print(f"✓ Weak key generation complete (d={d})")
     return public_key, private_key

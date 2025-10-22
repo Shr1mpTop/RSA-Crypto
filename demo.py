@@ -1,6 +1,6 @@
 import sys
 import os
-
+import time
 # Add src to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from src.key_generation import generate_keypair, generate_prime
@@ -110,7 +110,7 @@ def setup_keys_interactive():
         d = mod_inverse(e, phi)
         
         public_key = RSAKey(n, e, "public")
-        private_key = RSAKey(n, d, "private")
+        private_key = RSAKey(n, d, "private", p=p, q=q)  # Add p and q for CRT
         
     else:
         # Manual setup
@@ -139,7 +139,7 @@ def setup_keys_interactive():
         d = mod_inverse(e, phi)
         
         public_key = RSAKey(n, e, "public")
-        private_key = RSAKey(n, d, "private")
+        private_key = RSAKey(n, d, "private", p=p, q=q)  # Add p and q for CRT
     
     # Display key information
     print("\n✓ Key generation successful!")
@@ -155,6 +155,7 @@ def setup_keys_interactive():
     print(f"\nPrivate Key:")
     print(f"  d = {d}")
     print(f"  n = {n}")
+    print(f"  CRT optimization: ✓ Enabled" if private_key.dp is not None else "  CRT optimization: ✗ Disabled")
     
     return public_key, private_key, {'p': p, 'q': q, 'n': n, 'e': e, 'd': d, 'phi': phi}
 
@@ -194,24 +195,68 @@ def demonstrate_encryption_interactive(public_key, private_key):
     
     # Encrypt
     try:
+        import time
+        
         ciphertext = encrypt(message, public_key)
         print(f"\nCiphertext:")
         print(f"  c = m^e mod n")
         print(f"  c = {ciphertext}")
         print(f"  Hex: {hex(ciphertext)}")
         
-        # Decrypt
-        decrypted = decrypt(ciphertext, private_key)
-        print(f"\nDecrypted:")
-        print(f"  m = c^d mod n")
-        print(f"  Text: {decrypted.decode('utf-8')}")
-        print(f"  Bytes: {decrypted.hex()}")
+        has_crt = private_key.p is not None and private_key.q is not None
+        
+        if has_crt:
+            # Method 1: CRT-optimized decryption (automatic)
+            print(f"\n[Method 1] CRT-Optimized Decryption:")
+            iterations = 10
+            start_time = time.time()
+            for _ in range(iterations):
+                decrypted_crt = decrypt(ciphertext, private_key)
+            crt_time = time.time() - start_time
+            avg_crt_time = crt_time / iterations
+            
+            print(f"  Total time ({iterations} iterations): {crt_time:.6f} seconds")
+            print(f"  Average time: {avg_crt_time*1000:.4f} milliseconds")
+            print(f"  Result: {decrypted_crt.decode('utf-8')}")
+            
+            # Method 2: Standard decryption (without CRT)
+            print(f"\n[Method 2] Standard Decryption:")            
+            # Create a temporary key without CRT
+            private_key_no_crt = RSAKey(private_key.n, private_key.exponent, "private")
+            
+            start_time = time.time()
+            for _ in range(iterations):
+                decrypted_std = decrypt(ciphertext, private_key_no_crt)
+            std_time = time.time() - start_time
+            avg_std_time = std_time / iterations
+            
+            print(f"  Total time ({iterations} iterations): {std_time:.6f} seconds")
+            print(f"  Average time: {avg_std_time*1000:.4f} milliseconds")
+            print(f"  Result: {decrypted_std.decode('utf-8')}")
+            
+            # Calculate speedup
+            speedup = std_time / crt_time
+            time_saved = (1 - crt_time/std_time) * 100
+            
+            decrypted = decrypted_crt
+            
+        else:
+            # No CRT available, use standard decryption only
+            print(f"\n[Note] CRT optimization not available (p and q not stored)")
+            print(f"Using standard decryption method...")
+            
+            decrypted = decrypt(ciphertext, private_key)
+            print(f"\nDecrypted:")
+            print(f"  m = c^d mod n")
+            print(f"  Text: {decrypted.decode('utf-8')}")
+            print(f"  Bytes: {decrypted.hex()}")
         
         # Verify
+        print(f"\nVerification:")
         if message == decrypted:
-            print(f"\n✓ Verification successful: Original == Decrypted")
+            print(f"  ✓ Original message == Decrypted message")
         else:
-            print(f"\n✗ Verification failed: Messages don't match!")
+            print(f"  ✗ Messages don't match!")
             
     except ValueError as e:
         print(f"\n✗ Encryption failed: {e}")
