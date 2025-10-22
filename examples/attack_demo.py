@@ -1,23 +1,9 @@
-"""
-RSA Attack Demonstrations
-
-This script runs demonstrations of all implemented RSA attacks.
-"""
-
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-def run_all_attacks():
-    """Run demonstrations of all attacks."""
-    print("\n" + "#"*70)
-    print("# RSA ATTACK DEMONSTRATIONS")
-    print("#"*70)
-    print("\nThis script demonstrates various attacks on weak RSA implementations.")
-    print("⚠️  WARNING: These attacks are for EDUCATIONAL purposes only!")
-    print("#"*70)
-    
+def run_all_attacks():    
     attacks = [
         ("Small Prime Factorization", "src.attacks.small_prime", "demonstrate_small_prime_attack"),
         ("Wiener's Attack", "src.attacks.wiener", "demonstrate_wiener_attack"),
