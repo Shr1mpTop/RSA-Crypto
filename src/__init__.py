@@ -1,10 +1,3 @@
-"""
-RSA Crypto - RSA Implementation and Attack Demonstrations
-
-This package provides a complete RSA implementation along with
-demonstrations of various cryptographic attacks.
-"""
-
 from .rsa_core import RSAKey, encrypt, decrypt, sign, verify
 from .key_generation import generate_keypair
 from .utils import gcd, mod_inverse, is_prime
