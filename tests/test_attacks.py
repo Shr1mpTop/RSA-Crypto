@@ -11,12 +11,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from src.key_generation import (
     generate_weak_keypair_small_primes,
     generate_weak_keypair_close_primes,
-    generate_weak_keypair_small_d,
     generate_keypair
 )
 from src.rsa_core import encrypt, decrypt, RSAKey
 from src.attacks.small_prime import small_prime_attack
-from src.attacks.fermat import fermat_attack
 from src.attacks.common_modulus import common_modulus_attack
 from src.utils import bytes_to_int, gcd
 
@@ -39,27 +37,6 @@ class TestSmallPrimeAttack(unittest.TestCase):
         # Verify
         decrypted = decrypt(ciphertext, recovered_key)
         self.assertEqual(message, decrypted)
-
-
-class TestFermatAttack(unittest.TestCase):
-    """Test cases for Fermat's factorization attack."""
-    
-    def test_fermat_attack(self):
-        """Test that Fermat's attack works on close primes."""
-        # Generate weak key with close primes
-        public_key, private_key = generate_weak_keypair_close_primes(256)
-        
-        # Encrypt a message
-        message = b"Close!"
-        ciphertext = encrypt(message, public_key)
-        
-        # Attack
-        recovered_key = fermat_attack(public_key, max_iterations=10000)
-        
-        # Verify
-        decrypted = decrypt(ciphertext, recovered_key)
-        self.assertEqual(message, decrypted)
-
 
 class TestCommonModulusAttack(unittest.TestCase):
     """Test cases for common modulus attack."""

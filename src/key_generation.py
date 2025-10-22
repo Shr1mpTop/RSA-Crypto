@@ -3,7 +3,6 @@ from typing import Tuple
 from .utils import is_prime, gcd, mod_inverse
 from .rsa_core import RSAKey
 
-
 def generate_prime(bits: int) -> int:
     while True:
         num = random.getrandbits(bits)
@@ -33,7 +32,6 @@ def generate_keypair(bits: int = 2048, e: int = 65537) -> Tuple[RSAKey, RSAKey]:
     print(f"Key generation complete")
     return public_key, private_key
 
-
 def generate_weak_keypair_small_primes(bits: int = 2048, e: int = 65537) -> Tuple[RSAKey, RSAKey]:
     p = generate_prime(24)
     q = generate_prime(24)
@@ -56,11 +54,32 @@ def generate_weak_keypair_small_primes(bits: int = 2048, e: int = 65537) -> Tupl
 
 def generate_weak_keypair_close_primes(bits: int = 2048, e: int = 65537) -> Tuple[RSAKey, RSAKey]:
     p = generate_prime(bits // 2)
-    diff = random.randint(1, 1000)
-    q = p + diff
-
-    while not is_prime(q):
-        q += 2
+    
+    # Find a prime q close to p
+    max_attempts = 10000
+    attempts = 0
+    while attempts < max_attempts:
+        diff = random.randint(1, 1000)
+        q = p + diff
+        
+        # Check if q is odd, if not make it odd
+        if q % 2 == 0:
+            q += 1
+        
+        # Search for next prime near p + diff
+        search_limit = 10000
+        for _ in range(search_limit):
+            if is_prime(q):
+                break
+            q += 2
+        
+        if is_prime(q) and q != p:
+            break
+        
+        attempts += 1
+    
+    if attempts >= max_attempts:
+        raise ValueError("Failed to generate close primes after maximum attempts")
     
     n = p * q
     phi = (p - 1) * (q - 1)
@@ -109,10 +128,7 @@ def generate_weak_keypair_small_d(bits: int = 2048) -> Tuple[RSAKey, RSAKey]:
     return public_key, private_key
 
 
-if __name__ == "__main__":
-    print("Testing Key Generation...")
-    print("-" * 50)
-    
+if __name__ == "__main__":    
     # Test secure key generation
     print("\n1. Generating secure 1024-bit key pair:")
     pub, priv = generate_keypair(1024)

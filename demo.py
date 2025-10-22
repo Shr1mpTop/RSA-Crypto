@@ -95,10 +95,10 @@ def demonstrate_attacks():
 def show_menu():
     """Display the main menu."""
     print("\nChoose an option:")
-    print("  1. Demonstrate Secure RSA (2048-bit)")
-    print("  2. Demonstrate All Attacks")
-    print("  3. Demonstrate Specific Attack")
-    print("  4. Run Basic Examples")
+    print("  1. RSA (2048-bit)")
+    print("  2. Attacks")
+    print("  3. Specific Attack")
+    print("  4. Basic Examples")
     print("  0. Exit")
 
 
@@ -151,13 +151,7 @@ def run_basic_examples():
 
 
 def main():
-    """Main entry point."""
-    print("\n" + "#"*70)
-    print("# RSA ENCRYPTION ALGORITHM IMPLEMENTATION AND ATTACK DEMONSTRATION")
-    print("# Educational Project - For Learning Purposes Only")
-    print("#"*70)
-    
-    # Check for command-line arguments
+# Check for command-line arguments
     if len(sys.argv) > 1:
         command = sys.argv[1].lower()
         if command == "secure":
@@ -178,11 +172,9 @@ def main():
     while True:
         show_menu()
         try:
-            choice = input("\nEnter your choice: ").strip()
-            
+            choice = input("\nchoice: ").strip()            
             if choice == "0":
-                print("\nThank you for using RSA Crypto Demo!")
-                print("Remember: Always use secure parameters in production!")
+                print("\nbye!")
                 break
             elif choice == "1":
                 demonstrate_secure_rsa()
@@ -190,13 +182,13 @@ def main():
                 demonstrate_attacks()
             elif choice == "3":
                 show_attack_menu()
-                attack_choice = input("\nEnter your choice: ").strip()
+                attack_choice = input("\nchoice: ").strip()
                 if attack_choice != "0":
                     run_specific_attack(int(attack_choice))
             elif choice == "4":
                 run_basic_examples()
             else:
-                print("✗ Invalid choice. Please try again.")
+                print("✗ Invalid choice.")
         
         except KeyboardInterrupt:
             print("\n\nExiting...")
